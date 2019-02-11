@@ -1,0 +1,84 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 1</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+		this.load.image('sky', 'sky.png');
+    }
+
+    function create ()
+    {
+		// Callback
+let callback = function() {};
+
+// Graphics object
+let input_area	= this.add.graphics({ x: 100, y: 100 });
+
+input_area.fillStyle('0xff0000', 1);
+input_area.fillRect(0, 0, 400, 400);
+//input_area.setDepth(this.DEPTH.ui);
+
+// Clickable area
+let hitArea	= new Phaser.Geom.Rectangle(0, 0, 200, 200);
+
+input_area.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+input_area.on('pointerdown', ()=>{console.log("ow")}, this);
+
+		/*
+		//image = this.add.image(200, 150, 'sky');
+		image = this.add.circle(0,0,50)
+		image.setInteractive();
+		image.on('pointerdown',
+		()=>{
+				console.log('image clicked');
+		}
+		);
+		this.input.on('gameobjectdown', (p,g,e)=>{
+			//this.add.text(p.x,p.y,'hey!')
+			console.log(p)
+			console.log(g)
+			console.log(e)
+		});
+		this.input.on('gameobjectup', (p,g,e)=>{
+			g.x = p.x
+			g.y=p.y
+			console.log(p)
+			console.log(g)
+			console.log(e)
+		});*/
+    }
+
+    function update ()
+    {
+    }
+
+</script>
+
+</body>
+</html>
