@@ -2,13 +2,14 @@
 <html lang="en"> 
 <head> 
     <meta charset="UTF-8" />
-    <title>Making your first Phaser 3 Game - Part 1</title>
+    <title>Phaser</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
     <style type="text/css">
         body {
             margin: 0;
         }
     </style>
+	<link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
 </head>
 <body>
 
@@ -34,22 +35,69 @@
 
     function create ()
     {
-		// Callback
+
+	
+
+	// Callback
 let callback = function() {};
 
 // Graphics object
-let input_area	= this.add.graphics({ x: 100, y: 100 });
+let input_area	= this.add.graphics({ x: 0, y: 0 });
 
-input_area.fillStyle('0xff0000', 1);
+input_area.fillStyle('0x999999', 0.3);
 input_area.fillRect(0, 0, 400, 400);
-//input_area.setDepth(this.DEPTH.ui);
-
+input_area.fillStyle('0x999999', 0.1);
+input_area.fillRect(0, 0, 400, 20);//input_area.setDepth(this.DEPTH.ui);
 // Clickable area
-let hitArea	= new Phaser.Geom.Rectangle(0, 0, 200, 200);
+//let hitArea	= new Phaser.Geom.Rectangle(0, 0, 400, 20);
+//input_area.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+//this.input.setDraggable(input_area);
+/*input_area.on('drag', (pointer,dragX,dragY)=>{
+	input_area.x = dragX;
+	input_area.y = dragY;
+}, this);*/
 
-input_area.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
-input_area.on('pointerdown', ()=>{console.log("ow")}, this);
+let textcss = {'fontFamily':"Titillium Web"};
+convo = ["hi there","just tring out"];
+text_area = new Phaser.GameObjects.Text(this,10,30,renderText(convo),textcss);
+text_area.setFixedSize(400,400)
+text_area.setMaxLines(24);
+text_area.setWordWrapWidth(400,false)
+text_area.setShadow(1,1,'#000',1,true,true)
+currtext_area = new Phaser.GameObjects.Text(this,10,0,"|",{...textcss, 'color':'#999999'});
+currtext_area.setShadow(1,1,'#000',1,false,true)
+let container = this.add.container(100,100);
+container.add(input_area)
+container.add(text_area)
+container.add(currtext_area)
 
+let hitArea	= new Phaser.Geom.Rectangle(0, 0, 400, 400);
+
+container.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+this.input.setDraggable(container);
+container.on('drag', (pointer,dragX,dragY)=>{
+	container.x = dragX;
+	container.y = dragY;
+	convo.push("Dragged to "+dragX+" "+dragY)
+	text_area.setText(renderText(convo));
+}, this);
+this.input.on('pointerdown', (p,o)=>{
+	console.log(this.children.list)
+	for(var i in this.children.list){
+		this.children.list[i].setData("active",false);
+	}
+	if(o[0]){
+		container.setData("active",true);
+		console.log('chatbox active');
+		container.setAlpha(1)
+	}//else container.setData("active",false);
+	else {console.log('not active');container.setAlpha(0.3)}
+})
+/*container.on('gameobjectout', ()=>console.log('obj out'), this)
+container.on('pointerdown', ()=>console.log('pointerdown'), this)
+container.on('pointerup', ()=>console.log('pointerup'), this)
+container.on('pointerout', ()=>console.log('pointerout'), this)
+container.on('pointerover', ()=>console.log('pointerover'), this)*/
 		/*
 		//image = this.add.image(200, 150, 'sky');
 		image = this.add.circle(0,0,50)
@@ -72,12 +120,48 @@ input_area.on('pointerdown', ()=>{console.log("ow")}, this);
 			console.log(g)
 			console.log(e)
 		});*/
+			
+		this.input.keyboard.on('keydown', (event)=>{
+			if(!container.getData("active")) return;
+			let currText = container.getData("textdata") || "|";
+			switch(event.key){
+				case 'Enter':
+					if(currText.length>0){
+						currText = currText.substring(0,currText.length-1);
+						convo.push(currText)
+						container.setData("textdata","");
+						text_area.setText(renderText(convo));
+						currtext_area.setText("");
+					}
+				break;
+				case 'Backspace':
+					currText = currText.substring(0,currText.length-2)+"|";
+					currtext_area.setText(currText);
+					container.setData("textdata",currText);
+				break;
+				default:
+					if(event.key.length==1){
+					currText = currText.substring(0,currText.length-1);
+					currText += event.key + "|";
+					currtext_area.setText(currText);
+					container.setData("textdata",currText);
+					}
+			}
+		});
+		
     }
 
     function update ()
     {
+
+	
     }
 
+	function renderText(convo){
+		convo = convo.slice(-24);
+		return convo.join("\n")
+		//return convo.join("\n")
+	}
 </script>
 
 </body>
